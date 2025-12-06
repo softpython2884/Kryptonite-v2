@@ -344,7 +344,7 @@ const documentationHtml = `
         <br>
         <hr style="border: 0; border-top: 1px solid #d0d7de;">
         <p class="center-text" style="color: #656d76; font-size: 0.85rem; margin-top: 20px;">
-            <em>Généré automatiquement par NightFury pour Kryptonite.</em>
+            <em>Par NightFury pour Kryptonite.</em>
         </p>
 
     </div>

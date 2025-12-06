@@ -1,0 +1,677 @@
+<!-- ATTENTIONS-->
+<!-- Ceci et le Diaporama ! -->
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kryptonite - Microservice Cryptographie</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent-green: #238636;
+            --accent-orange: #d29922;
+            --border-color: #30363d;
+            --code-bg: #161b22;
+            --code-keyword: #ff7b72;
+            --code-string: #a5d6ff;
+            --code-func: #d2a8ff;
+            --slide-transition: 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #slides-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95) translateY(20px);
+            transition: opacity var(--slide-transition), transform var(--slide-transition), visibility var(--slide-transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #c9d1d9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            color: #ffffff;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        p,
+        li {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        strong {
+            color: #fff;
+        }
+
+        ul {
+            list-style: none;
+            text-align: left;
+            max-width: 800px;
+        }
+
+        li {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        li::before {
+            content: '▹';
+            color: var(--accent-green);
+            position: absolute;
+            left: 0;
+        }
+
+        .highlight-box {
+            background: rgba(48, 54, 61, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .highlight-box:hover {
+            border-color: var(--text-muted);
+            transform: translateY(-2px);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .terminal {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 100%;
+            max-width: 600px;
+            text-align: left;
+            margin: 0 auto 1.5rem auto;
+            font-family: 'Fira Code', monospace;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-header {
+            background: #090c10;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .red {
+            background: #ff5f56;
+        }
+
+        .yellow {
+            background: #ffbd2e;
+        }
+
+        .green {
+            background: #27c93f;
+        }
+
+        .terminal-body {
+            padding: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            overflow-x: auto;
+        }
+
+        .code-key {
+            color: var(--code-string);
+        }
+
+        .code-val {
+            color: var(--code-keyword);
+        }
+
+        .code-num {
+            color: #79c0ff;
+        }
+
+        /* --- NAVIGATION CONTROLS --- */
+        .controls-area {
+            height: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            background-color: rgba(13, 17, 23, 0.95);
+            border-top: 1px solid var(--border-color);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: #21262d;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #30363d;
+            border-color: #8b949e;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        .progress-indicator {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* --- ANIMATIONS ENTREE CONTENU --- */
+        .animate-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .slide.active .animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Delays */
+        .slide.active .animate-in:nth-child(1) {
+            transition-delay: 0.1s;
+        }
+
+        .slide.active .animate-in:nth-child(2) {
+            transition-delay: 0.2s;
+        }
+
+        .slide.active .animate-in:nth-child(3) {
+            transition-delay: 0.3s;
+        }
+
+        .slide.active .animate-in:nth-child(4) {
+            transition-delay: 0.4s;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .terminal {
+                max-width: 100%;
+            }
+
+            .slide {
+                padding: 1rem;
+                overflow-y: auto;
+                display: block;
+            }
+
+            /* Allow scroll on small mobile */
+            .slide.active {
+                display: flex;
+                /* Reset flex for active to center if possible, or keep block */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="slides-container">
+
+        <!-- SLIDE 1: TITRE -->
+        <section class="slide active" id="slide-1">
+            <div class="animate-in">
+                <i class="fas fa-lock fa-4x" style="color: var(--accent-green); margin-bottom: 1.5rem;"></i>
+            </div>
+            <h1 class="animate-in">Kryptonite</h1>
+            <h3 class="animate-in" style="font-weight: 300; color: var(--text-muted);">Microservice de cryptographie
+                REST</h3>
+            <div class="animate-in"
+                style="margin-top: 3rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                <p>Créé par <strong>NightFury</strong> / <span style="font-family:'Fira Code'">softpython2884</span></p>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: MOTIVATION -->
+        <section class="slide" id="slide-2">
+            <h2 class="animate-in">Pourquoi ce projet ?</h2>
+            <div class="grid-2 animate-in">
+                <div class="highlight-box">
+                    <i class="fas fa-server fa-2x" style="color: var(--code-func); margin-bottom: 10px;"></i>
+                    <h3>Architecture Backend</h3>
+                    <p>Concevoir une API REST robuste et réutilisable capable de traiter des requêtes de chiffrement à
+                        la volée.</p>
+                </div>
+                <div class="highlight-box">
+                    <i class="fas fa-history fa-2x" style="color: var(--accent-orange); margin-bottom: 10px;"></i>
+                    <h3>Crypto Historique</h3>
+                    <p>Explorer et implémenter les algorithmes classiques : César, ROT13, Vigenère et le Carré de
+                        Polybe.</p>
+                </div>
+                <div class="highlight-box" style="grid-column: 1 / -1;">
+                    <i class="fas fa-bolt fa-2x" style="color: var(--accent-green); margin-bottom: 10px;"></i>
+                    <h3>Montée en compétence</h3>
+                    <p>Maîtriser TypeScript en environnement Node.js strict et structuring d'un microservice moderne.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: OBJECTIFS & MOYENS -->
+        <section class="slide" id="slide-3">
+            <h2 class="animate-in">Objectifs & Stack</h2>
+            <div class="grid-2 animate-in" style="align-items: start;">
+                <div style="text-align: left;">
+                    <h3 style="color: var(--code-string);"><i class="fas fa-bullseye"></i> Objectifs</h3>
+                    <ul>
+                        <li>API REST 100% fonctionnelle</li>
+                        <li>Validation stricte des entrées (Zod)</li>
+                        <li>Tests unitaires & d'intégration (TDD)</li>
+                        <li>Code propre et documenté</li>
+                    </ul>
+                </div>
+                <div style="text-align: left;">
+                    <h3 style="color: var(--code-keyword);"><i class="fas fa-tools"></i> Moyens Techniques</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1rem;">
+                        <span
+                            style="background: #3178c6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;">TypeScript</span>
+                        <span
+                            style="background: #333; color: #83cd29; padding: 5px 10px; border-radius: 4px; font-weight: bold;">Node.js</span>
+                        <span
+                            style="background: #000; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;">Express</span>
+                        <span
+                            style="background: #3068b7; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;">Zod</span>
+                        <span
+                            style="background: #99424f; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;">Jest</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: ENDPOINTS -->
+        <section class="slide" id="slide-4">
+            <h2 class="animate-in">Endpoints API</h2>
+            <p class="animate-in" style="margin-bottom: 1rem;">Exemples de réponses JSON</p>
+
+            <div class="grid-2 animate-in" style="gap: 1rem; transform: scale(0.9);">
+                <!-- Cesar -->
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div><span style="margin-left:auto; color:#666; font-size: 10px;">POST
+                            /api/caesar</span>
+                    </div>
+                    <div class="terminal-body">
+                        {
+                        <span class="code-key">"original"</span>: <span class="code-val">"Hello"</span>,
+                        <span class="code-key">"encrypted"</span>: <span class="code-val">"Khoor"</span>,
+                        <span class="code-key">"shift"</span>: <span class="code-num">3</span>,
+                        <span class="code-key">"algo"</span>: <span class="code-val">"caesar"</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Vigenere -->
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div><span style="margin-left:auto; color:#666; font-size: 10px;">POST
+                            /api/vigenere</span>
+                    </div>
+                    <div class="terminal-body">
+                        {
+                        <span class="code-key">"original"</span>: <span class="code-val">"AttackAtDawn"</span>,
+                        <span class="code-key">"key"</span>: <span class="code-val">"LEMON"</span>,
+                        <span class="code-key">"encrypted"</span>: <span class="code-val">"lxfopvefrnhr"</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Polybe -->
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div><span style="margin-left:auto; color:#666; font-size: 10px;">POST
+                            /api/polybius</span>
+                    </div>
+                    <div class="terminal-body">
+                        {
+                        <span class="code-key">"input"</span>: <span class="code-val">"CODE"</span>,
+                        <span class="code-key">"cipher"</span>: <span class="code-val">"13 34 14 15"</span>
+                        }
+                    </div>
+                </div>
+                <!-- ROT13 -->
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div><span style="margin-left:auto; color:#666; font-size: 10px;">POST
+                            /api/rot13</span>
+                    </div>
+                    <div class="terminal-body">
+                        {
+                        <span class="code-key">"text"</span>: <span class="code-val">"github"</span>,
+                        <span class="code-key">"result"</span>: <span class="code-val">"tvguho"</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: PROBLEMES & SOLUTIONS -->
+        <section class="slide" id="slide-5">
+            <h2 class="animate-in">Challenges Techniques</h2>
+            <div class="animate-in" style="width: 100%; max-width: 800px; text-align: left;">
+
+                <div
+                    style="background: #21262d; border-left: 4px solid var(--accent-orange); padding: 1rem; margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--accent-orange); margin-bottom: 0.5rem;"><i
+                            class="fas fa-exclamation-triangle"></i> Problème : Bouclage Alphabet</h4>
+                    <p style="font-size: 0.95rem;">Comment gérer le décalage de 'z' vers 'a' ou les caractères spéciaux
+                        dans César/ROT13 ?</p>
+                    <div
+                        style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #444; color: var(--accent-green);">
+                        <i class="fas fa-check-circle"></i> <strong>Solution :</strong> Utilisation de l'opérateur
+                        modulo : <code>(index + shift) % 26</code>.
+                    </div>
+                </div>
+
+                <div
+                    style="background: #21262d; border-left: 4px solid var(--code-func); padding: 1rem; margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--code-func); margin-bottom: 0.5rem;"><i class="fas fa-key"></i> Problème :
+                        Clé Vigenère répétitive</h4>
+                    <p style="font-size: 0.95rem;">La clé doit se répéter pour correspondre à la longueur du texte.</p>
+                    <div
+                        style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #444; color: var(--accent-green);">
+                        <i class="fas fa-check-circle"></i> <strong>Solution :</strong> Indexation cyclique :
+                        <code>key[i % key.length]</code>.
+                    </div>
+                </div>
+
+                <div style="background: #21262d; border-left: 4px solid var(--code-keyword); padding: 1rem;">
+                    <h4 style="color: var(--code-keyword); margin-bottom: 0.5rem;"><i class="fas fa-shield-alt"></i>
+                        Problème : Validation des entrées</h4>
+                    <p style="font-size: 0.95rem;">Empêcher le plantage si l'utilisateur envoie des nombres au lieu de
+                        chaînes.</p>
+                    <div
+                        style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #444; color: var(--accent-green);">
+                        <i class="fas fa-check-circle"></i> <strong>Solution :</strong> Middleware <strong>Zod</strong>
+                        pour rejeter les inputs invalides (400 Bad Request).
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SLIDE 6: RESULTATS -->
+        <section class="slide" id="slide-6">
+            <h2 class="animate-in">Résultats & Analyse</h2>
+            <div class="grid-2 animate-in">
+                <div
+                    style="background: rgba(35, 134, 54, 0.1); border: 1px solid var(--accent-green); padding: 1.5rem; border-radius: 8px;">
+                    <h3 style="color: var(--accent-green);"><i class="fas fa-check"></i> Ce qui fonctionne</h3>
+                    <ul style="color: var(--text-main);">
+                        <li>Toutes les méthodes de cryptage (ROT13, César, etc.)</li>
+                        <li>Tests unitaires Jest (Couverture > 90%)</li>
+                        <li>Gestion des erreurs HTTP propre</li>
+                        <li>Architecture MVC respectée</li>
+                    </ul>
+                </div>
+
+                <div
+                    style="background: rgba(210, 153, 34, 0.1); border: 1px solid var(--accent-orange); padding: 1.5rem; border-radius: 8px;">
+                    <h3 style="color: var(--accent-orange);"><i class="fas fa-wrench"></i> Améliorations</h3>
+                    <ul style="color: var(--text-main);">
+                        <li>Ajouter authentification (API Key)</li>
+                        <li>Implémenter AES / RSA (Crypto moderne)</li>
+                        <li>Dockeriser l'application</li>
+                        <li>Ajouter un Swagger/OpenAPI</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="animate-in highlight-box" style="margin-top: 2rem; width: 100%; max-width: 600px;">
+                <p><strong>Apprentissage clé :</strong> La validation stricte en amont (Zod) simplifie énormément la
+                    logique interne des services.</p>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: CONCLUSION -->
+        <section class="slide" id="slide-7">
+            <div class="animate-in">
+                <i class="fas fa-rocket fa-4x" style="color: var(--code-string); margin-bottom: 1.5rem;"></i>
+            </div>
+            <h2 class="animate-in">Conclusion</h2>
+            <p class="animate-in" style="max-width: 700px; margin: 0 auto 2rem auto;">
+                Kryptonite a permis de consolider mes bases en <strong>TypeScript Backend</strong>. Le projet est une
+                base solide pour un futur portfolio de microservices.
+            </p>
+            <div class="animate-in"
+                style="display: inline-block; padding: 1rem 2rem; background: var(--code-bg); border: 1px solid var(--border-color); border-radius: 50px;">
+                <i class="fas fa-code"></i> Ready to Deploy
+                <span style="margin: 0 10px; color: var(--border-color);">|</span>
+                <i class="fas fa-lock"></i> Secure
+            </div>
+        </section>
+
+        <!-- SLIDE 8: SOURCES -->
+        <section class="slide" id="slide-8">
+            <h2 class="animate-in">Sources & Outils</h2>
+            <div class="grid-2 animate-in" style="max-width: 800px; gap: 2rem;">
+                <div>
+                    <h3 style="font-size: 1.2rem; color: var(--code-string);">Documentation</h3>
+                    <ul>
+                        <li>Node.js Docs</li>
+                        <li>Express.js Guide</li>
+                        <li>Zod Documentation</li>
+                        <li>dCode.fr (Vérification crypto)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.2rem; color: var(--code-func);">Crédits</h3>
+                    <ul>
+                        <li>NightProject Portfolio</li>
+                        <li>FontAwesome (Icons)</li>
+                        <li>Google Fonts</li>
+                        <li>GitHub Design System (Inspiration)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="animate-in" style="margin-top: 4rem; opacity: 0.6;">
+                <p style="font-family: 'Fira Code'; font-size: 0.8rem;">git commit -m "End of presentation"</p>
+                <p style="font-size: 2rem; margin-top: 0.5rem;">🏁</p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- CONTROLS FOOTER -->
+    <div class="controls-area">
+        <div class="progress-indicator">Slide <span id="current-slide-num">1</span> / <span id="total-slides">8</span>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <button class="nav-btn" onclick="prevSlide()"><i class="fas fa-arrow-left"></i> Précédent</button>
+            <button class="nav-btn" onclick="nextSlide()">Suivant <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <div style="font-family: 'Fira Code'; font-size: 0.8rem; color: var(--text-muted);">
+            <i class="fab fa-github"></i> softpython2884
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIQUE DIAPORAMA ---
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const currentNumEl = document.getElementById('current-slide-num');
+        const totalNumEl = document.getElementById('total-slides');
+
+        // Initialisation
+        totalNumEl.textContent = totalSlides;
+
+        function showSlide(index) {
+            // Gestion des limites
+            if (index < 0) index = 0;
+            if (index >= totalSlides) index = totalSlides - 1;
+
+            currentSlideIndex = index;
+
+            // Mise à jour des classes active/inactive
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === currentSlideIndex) {
+                    slide.classList.add('active');
+                }
+            });
+
+            // Mise à jour du compteur
+            currentNumEl.textContent = currentSlideIndex + 1;
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < totalSlides - 1) {
+                showSlide(currentSlideIndex + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                showSlide(currentSlideIndex - 1);
+            }
+        }
+
+        // Navigation Clavier
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Touch Navigation (Swipe basique)
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) nextSlide();
+            if (touchEndX > touchStartX + 50) prevSlide();
+        }
+
+    </script>
+</body>
+
+</html>

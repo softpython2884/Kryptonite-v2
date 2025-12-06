@@ -48,8 +48,8 @@ src/
 
 1.  **Récupère le code :**
     ```bash
-    git clone https://github.com/softpython2884/kryptonite.git
-    cd kryptonite
+    git clone https://github.com/softpython2884/Kryptonite-v2.git
+    cd Kryptonite-v2
     ```
 
 2.  **Installe les dépendances :**

@@ -19,7 +19,9 @@ const asciiArt = `
 app.listen(PORT, () => {
     console.log(asciiArt);
     console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`[Visite la page pour la doc]`);
     console.log(`GitHub: https://github.com/softpython2884`);
     console.log(`Portfolio: https://nightproject.nationquest.fr/`);
     console.log(`N'oubliez pas de checker les fichiers: projet.md et readme.md`);
+    console.log(`https://forgenet.fr`);
 });
